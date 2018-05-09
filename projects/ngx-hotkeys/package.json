@@ -1,0 +1,29 @@
+{
+  "name": "@balticcode/ngx-hotkeys",
+  "version": "1.0.0",
+  "description": "An Angular module providing hotkey support.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BalticCode/ngx-hotkeys.git"
+  },
+  "keywords": [
+    "angular",
+    "module",
+    "service",
+    "hotkeys"
+  ],
+  "author": "BalticCode (b4lt1c.c0d3@gmail.com)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/BalticCode/ngx-hotkeys/issues"
+  },
+  "homepage": "https://github.com/BalticCode/ngx-hotkeys#readme",
+  "devDependencies": {
+    "@types/mousetrap": "^1.6.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "mousetrap": "^1.6.1"
+  }
+}
