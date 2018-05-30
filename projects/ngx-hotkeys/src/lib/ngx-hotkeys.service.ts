@@ -1,26 +1,33 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 
 import 'mousetrap';
 
-import {IHotkeyOptions} from './interfaces';
-import {Hotkey} from './models';
+import {IHotkey, IHotkeyOptions} from './interfaces';
 import {HotkeyOptions} from './token';
+import {share} from 'rxjs/internal/operators';
 
-// @Injectable({
-//   providedIn: 'root'
-// })
+const _defaultOptions: IHotkeyOptions = {
+  disableCheatSheet: false,
+  cheatSheetTitle: 'Keyboard Shortcuts:',
+  cheatSheetHotkey: '?',
+  cheatSheetHotkeyDescription: 'Show / hide this help menu',
+  cheatSheetCloseEsc: false,
+  cheatSheetCloseEscDescription: 'Hide this help menu'
+};
+
 @Injectable()
 export class NgxHotkeysService implements OnDestroy {
 
-  private _hotkeys: Hotkey[] = [];
-  private _pausedHotkeys: Hotkey[] = [];
+  private _serviceOptions: IHotkeyOptions;
+  private _registeredHotkeys: Set<IHotkey> = new Set();
+  private _pausedHotkeys: Set<IHotkey> = new Set();
   private _mousetrapInstance: MousetrapInstance;
-  private _cheatSheetToggle: Subject<any> = new Subject();
-
+  private _cheatSheetToggled: Subject<any> = new Subject();
   private _preventIn = ['INPUT', 'SELECT', 'TEXTAREA'];
 
   constructor(@Inject(HotkeyOptions) private _options: IHotkeyOptions) {
+    this._serviceOptions = Object.assign(_defaultOptions, this._options);
     Mousetrap.prototype.stopCallback = (event: KeyboardEvent, element: HTMLElement, combo: string, callback: Function) => {
       // if the element has the class "mousetrap" then no need to stop
       if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
@@ -29,160 +36,157 @@ export class NgxHotkeysService implements OnDestroy {
       return (element.contentEditable && element.contentEditable === 'true');
     };
     this._mousetrapInstance = new (<any>Mousetrap)();
-    if (!this._options.disableCheatSheet) {
-      this.add(new Hotkey(
-        this._options.cheatSheetHotkey || 'x',
-        function (event: KeyboardEvent) {
-          this.cheatSheetToggle.next();
+    if (!this._serviceOptions.disableCheatSheet) {
+      this.register({
+        combo: this._serviceOptions.cheatSheetHotkey,
+        handler: function (event: KeyboardEvent) {
+          this._cheatSheetToggled.next();
         }.bind(this),
-        [],
-        this._options.cheatSheetDescription || 'Show / hide this help menu',
-      ));
+        description: this._serviceOptions.cheatSheetHotkeyDescription
+      });
     }
 
-    if (this._options.cheatSheetCloseEsc) {
-      this.add(new Hotkey(
-        'esc',
-        function (event: KeyboardEvent) {
-          this.cheatSheetToggle.next(false);
+    if (this._serviceOptions.cheatSheetCloseEsc) {
+      this.register({
+        combo: 'esc',
+        handler: function (event: KeyboardEvent) {
+          this._cheatSheetToggled.next(false);
         }.bind(this),
-        ['HOTKEYS-CHEATSHEET'],
-        this._options.cheatSheetCloseEscDescription || 'Hide this help menu',
-      ));
+        allowIn: ['HOTKEYS-CHEATSHEET'],
+        description: this._serviceOptions.cheatSheetCloseEscDescription
+      });
     }
   }
 
-  public get hotkeys(): Hotkey[] {
-    return this._hotkeys;
+  /**
+   * Returns the registered hotkeys as array.
+   * @returns all registered hotkeys
+   */
+  public get hotkeys(): IHotkey[] {
+    return Array.from(this._registeredHotkeys);
   }
 
-  public get cheatSheetToggle(): Subject<any> {
-    return this._cheatSheetToggle;
+  /**
+   * Returns an Observable stream indicating the cheatsheets visibility was toggled.
+   * @returns stream indicating the cheatsheets visibility was toggled
+   */
+  public get cheatSheetToggled(): Observable<boolean> {
+    return this._cheatSheetToggled.asObservable().pipe(
+      share()
+    );
   }
 
-  add(hotkey: Hotkey | Hotkey[], specificEvent?: string): Hotkey | Hotkey[] {
-    if (Array.isArray(hotkey)) {
-      const temp: Hotkey[] = [];
-      for (const key of hotkey) {
-        temp.push(<Hotkey>this.add(key, specificEvent));
-      }
-      return temp;
+  public get options(): IHotkeyOptions {
+    return this._serviceOptions;
+  }
+
+  /**
+   * Registers a new hotkey/new hotkeys with it's/their handler(s).
+   * @param hotkey hotkeys to listen for
+   * @param unpausing flag indicating if the hotkeys should be unpaused
+   */
+  public register(hotkey: IHotkey | IHotkey[], unpausing = false): void {
+    let hotkeys: IHotkey[] = [].concat(hotkey);
+    if (unpausing) {
+      hotkeys = Array.from(this._pausedHotkeys);
     }
-    this.remove(hotkey);
-    this._hotkeys.push(<Hotkey>hotkey);
-    this._mousetrapInstance.bind((<Hotkey>hotkey).combo, (event: KeyboardEvent, combo: string) => {
-      let shouldExecute = true;
-
-      // if the callback is executed directly `hotkey.get('w').callback()`
-      // there will be no event, so just execute the callback.
-      if (event) {
-        const target: HTMLElement = <HTMLElement>(event.target || event.srcElement); // srcElement is IE only
-        const nodeName: string = target.nodeName.toUpperCase();
-
-        // check if the input has a mousetrap class, and skip checking preventIn if so
-        if ((' ' + target.className + ' ').indexOf(' mousetrap ') > -1) {
-          shouldExecute = true;
-        } else if (this._preventIn.indexOf(nodeName) > -1
-          && (<Hotkey>hotkey).allowIn.map(allow => allow.toUpperCase()).indexOf(nodeName) === -1) {
-          // don't execute callback if the event was fired from inside an element listed in preventIn but not in allowIn
-          shouldExecute = false;
-        }
+    hotkeys.forEach(h => {
+      if (unpausing) {
+        this._pausedHotkeys.delete(h);
       }
-
-      if (shouldExecute) {
-        return (<Hotkey>hotkey).callback.apply(this, [event, combo]);
-      }
-    }, specificEvent);
-    return hotkey;
+      this._registeredHotkeys.add(h);
+      this.bindToMoustrap(h);
+    });
   }
 
-  remove(hotkey?: Hotkey | Hotkey[]): Hotkey | Hotkey[] {
-    const temp: Hotkey[] = [];
+  /**
+   * Removes a/the registered hotkey(s).
+   * @param hotkey hotkey filter
+   * @param pausing flag indicating if the hotkeys should be paused
+   */
+  public unregister(hotkey: IHotkey | IHotkey[], pausing = false): void {
+    const hotkeys: IHotkey[] = [].concat(hotkey);
+
+    hotkeys.forEach(h => {
+      this._registeredHotkeys.delete(h);
+      if (pausing) {
+        this._pausedHotkeys.add(h);
+      }
+      this._mousetrapInstance.unbind(h.combo, h.specificEvent);
+    });
+  }
+
+  /**
+   * Returns all hotkeys matching the passed combo(s).
+   * @param combo combo to match against
+   * @returns all matched hotkeys
+   */
+  public get(combo?: string | string[]): IHotkey[] {
+    return this.hotkeys.filter(h => h.combo === combo);
+  }
+
+  /**
+   * Stops listening for the specified hotkeys.
+   * @param hotkey hotkey filter
+   */
+  public pause(hotkey?: IHotkey | IHotkey[]): void {
     if (!hotkey) {
-      for (const key of this._hotkeys) {
-        temp.push(<Hotkey>this.remove(key));
-      }
-      return temp;
+      return this.pause(this.hotkeys);
     }
-    if (Array.isArray(hotkey)) {
-      for (const key of hotkey) {
-        temp.push(<Hotkey>this.remove(key));
-      }
-      return temp;
-    }
-    const index = this.findHotkey(<Hotkey>hotkey);
-    if (index > -1) {
-      this._hotkeys.splice(index, 1);
-      this._mousetrapInstance.unbind((<Hotkey>hotkey).combo);
-      return hotkey;
-    }
-    return null;
+    const hotkeys: IHotkey[] = [].concat(hotkey);
+    this.unregister(hotkeys, true);
   }
 
-  get(combo?: string | string[]): Hotkey | Hotkey[] {
-    if (!combo) {
-      return this._hotkeys;
-    }
-    if (Array.isArray(combo)) {
-      const temp: Hotkey[] = [];
-      for (const key of combo) {
-        temp.push(<Hotkey>this.get(key));
-      }
-      return temp;
-    }
-    for (let i = 0; i < this._hotkeys.length; i++) {
-      if (this._hotkeys[i].combo.indexOf(<string>combo) > -1) {
-        return this._hotkeys[i];
-      }
-    }
-    return null;
-  }
-
-  pause(hotkey?: Hotkey | Hotkey[]): Hotkey | Hotkey[] {
+  /**
+   * Resumes listening for the specified hotkeys.
+   * @param hotkey hotkey filter
+   */
+  public unpause(hotkey?: IHotkey | IHotkey[]): void {
     if (!hotkey) {
-      return this.pause(this._hotkeys);
+      return this.unpause(this.hotkeys);
     }
-    if (Array.isArray(hotkey)) {
-      const temp: Hotkey[] = [];
-      for (const key of hotkey) {
-        temp.push(<Hotkey>this.pause(key));
-      }
-      return temp;
-    }
-    this.remove(hotkey);
-    this._pausedHotkeys.push(<Hotkey>hotkey);
-    return hotkey;
+    const hotkeys: IHotkey[] = [].concat(hotkey);
+    this.register(hotkeys, true);
   }
 
-  unpause(hotkey?: Hotkey | Hotkey[]): Hotkey | Hotkey[] {
-    if (!hotkey) {
-      return this.unpause(this._pausedHotkeys);
-    }
-    if (Array.isArray(hotkey)) {
-      const temp: Hotkey[] = [];
-      for (const key of hotkey) {
-        temp.push(<Hotkey>this.unpause(key));
-      }
-      return temp;
-    }
-    const index: number = this._pausedHotkeys.indexOf(<Hotkey>hotkey);
-    if (index > -1) {
-      this.add(hotkey);
-      return this._pausedHotkeys.splice(index, 1);
-    }
-    return null;
-  }
-
-  reset() {
+  /**
+   * Resets all hotkeys.
+   */
+  public reset(): void {
     this._mousetrapInstance.reset();
+    this._registeredHotkeys.clear();
+    this._pausedHotkeys.clear();
   }
 
-  private findHotkey(hotkey: Hotkey): number {
-    return this._hotkeys.indexOf(hotkey);
-  }
-
-  ngOnDestroy() {
-    console.log('Service destroy');
+  public ngOnDestroy(): void {
     this.reset();
+  }
+
+  private bindToMoustrap(hotkey: IHotkey): void {
+
+    this._mousetrapInstance.bind(hotkey.combo,
+      (event: KeyboardEvent, combo: string) => {
+        let shouldExecute = true;
+
+        // if the callback is executed directly `hotkey.get('w').callback()`
+        // there will be no event, so just execute the callback.
+        if (event) {
+          const target: HTMLElement = <HTMLElement>(event.target || event.srcElement); // srcElement is IE only
+          const nodeName: string = target.nodeName.toUpperCase();
+
+          // check if the input has a mousetrap class, and skip checking preventIn if so
+          if ((' ' + target.className + ' ').indexOf(' mousetrap ') > -1) {
+            shouldExecute = true;
+          } else if (this._preventIn.indexOf(nodeName) > -1 && hotkey.allowIn.map(allow => allow.toUpperCase()).indexOf(nodeName) === -1) {
+            // don't execute callback if the event was fired from inside an element listed in preventIn but not in allowIn
+            shouldExecute = false;
+          }
+        }
+
+        if (shouldExecute) {
+          return hotkey.handler.apply(this, [event, combo]);
+        }
+      },
+      hotkey.specificEvent);
   }
 }

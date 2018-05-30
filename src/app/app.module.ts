@@ -16,7 +16,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     MatCardModule,
     MatListModule,
 
-    NgxHotkeysModule.forRoot({disableCheatSheet: false}),
+    NgxHotkeysModule.forRoot(),
 
     BrowserAnimationsModule
   ],

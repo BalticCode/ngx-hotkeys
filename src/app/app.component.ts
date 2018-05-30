@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
-
-import {Hotkey, NgxHotkeysService} from '@balticcode/ngx-hotkeys';
+import {NgxHotkeysService} from '@balticcode/ngx-hotkeys';
 
 @Component({
   selector: 'app-root',
@@ -10,9 +9,13 @@ import {Hotkey, NgxHotkeysService} from '@balticcode/ngx-hotkeys';
 export class AppComponent {
 
   constructor(private _hotkeysService: NgxHotkeysService) {
-    this._hotkeysService.add(new Hotkey('shift+g', (event: KeyboardEvent): boolean => {
-      console.log('Typed hotkey');
-      return false; // Prevent bubbling
-    }, undefined, 'Send a secret message to the console.'));
+    this._hotkeysService.register({
+      combo: 'shift+g',
+      handler: event => {
+        console.log('Typed hotkey');
+        return false; // Prevent bubbling
+      },
+      description: 'Send a secret message to the console.'
+    });
   }
 }

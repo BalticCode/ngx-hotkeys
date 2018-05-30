@@ -1,16 +1,16 @@
-<div class="cfp-hotkeys-container fade" [ngClass]="{'in': helpVisible}" style="display:none">
-  <div class="cfp-hotkeys">
-    <h4 class="cfp-hotkeys-title">{{ title }}</h4>
+<div class="ngx-cheatsheet fade" [ngClass]="{'in': helpVisible}" style="display:none">
+  <div class="ngx-cheatsheet__hotkeys">
+    <h4 class="ngx-cheatsheet__hotkeys__title">{{ title }}</h4>
     <table>
       <tbody>
       <tr *ngFor="let hotkey of hotkeys">
-        <td class="cfp-hotkeys-keys">
-          <span *ngFor="let key of hotkey.formatted" class="cfp-hotkeys-key">{{ key }}</span>
+        <td class="ngx-cheatsheet__hotkeys__keys">
+          <span class="ngx-cheatsheet__hotkeys__keys__key">{{ formatHotkey(hotkey) }}</span>
         </td>
-        <td class="cfp-hotkeys-text">{{ hotkey.description }}</td>
+        <td class="ngx-cheatsheet__hotkeys__keys__text">{{ hotkey.description }}</td>
       </tr>
       </tbody>
     </table>
-    <div class="cfp-hotkeys-close" (click)="toggleCheatSheet()">&#215;</div>
+    <div class="ngx-cheatsheet__hotkeys__close" (click)="toggleCheatSheet()">&#215;</div>
   </div>
 </div>
