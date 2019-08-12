@@ -81,6 +81,9 @@ export class NgxHotkeysService implements OnDestroy {
     );
   }
 
+  /**
+   * Returns the options used to configure this service.
+   */
   public get options(): HotkeyOptions {
     return this._serviceOptions;
   }

@@ -33,7 +33,7 @@ In case you want to do it manually, there are available CLI parameters for skipp
 
 ## Usage
 
-#### Import `NgxLocalStorageModule`
+#### Import `NgxHotkeysModule`
 
 ```ts
 import {BrowserModule} from '@angular/platform-browser';
@@ -49,7 +49,7 @@ import {NgxHotkeysModule} from '@balticcode/ngx-hotkeys';
 })
 export class AppModule { }
 ```
-##### Configuration (`NgxHotkeysModule.forRoot(options?: IHotkeyOptions)`)
+##### Configuration (`NgxHotkeysModule.forRoot(options?: HotkeyOptions)`)
 
 * __disableCheatSheet__
   * Type: `boolean?`
@@ -82,17 +82,18 @@ export class AppModule { }
 
 #### Methods
 
-- `register(hotkey: IHotkey | IHotkey[], unpausing = false): void`: Registers a new hotkey/new hotkeys with it's/their handler(s).
-- `unregister(hotkey: IHotkey | IHotkey[], pausing = false): void`: Removes a/the registered hotkey(s). 
-- `get(combo?: string | string[]): IHotkey | IHotkey[]`: Returns all hotkeys matching the passed combo(s).
-- `pause(hotkey?: IHotkey | IHotkey[]): void`: Stops listening for the specified hotkeys.
-- `unpause(hotkey?: IHotkey | IHotkey[]): void`: Resumes listening for the specified hotkeys.
+- `register(hotkey: Hotkey | Hotkey[], unpausing = false): void`: Registers a new hotkey/new hotkeys with it's/their handler(s).
+- `unregister(hotkey: Hotkey | Hotkey[], pausing = false): void`: Removes a/the registered hotkey(s). 
+- `get(combo?: string): Hotkey | Hotkey[]`: Returns all hotkeys matching the passed combo(s).
+- `pause(hotkey?: Hotkey | Hotkey[]): void`: Stops listening for the specified hotkeys.
+- `unpause(hotkey?: Hotkey | Hotkey[]): void`: Resumes listening for the specified hotkeys.
 - `reset(): void`: Resets all hotkeys.
 
 #### Properties
 
-- `hotkeys` (`IHotkey[]`): Returns the registered hotkeys as array.
+- `hotkeys` (`Hotkey[]`): Returns the registered hotkeys as array.
 - `cheatSheetToggled` (`Observable<boolean>`): Returns an Observable stream indicating the cheatsheets visibility was toggled.
+- `options` (`HotkeyOptions`): Returns the options used to configure the service.
 
 ##### Example
 
@@ -104,18 +105,11 @@ constructor(private _hotkeysService: NgxHotkeysService) {
     combo: 'shift+g',
     handler: event => {
       console.log('Typed hotkey');
-      return false; // Prevent bubbling
     },
     description: 'Sends a secret message to the console.'
   });
 }
 ```
-
-### NgxHotkeysDirective
-
-#### Properties
-
-- `hotkeys` (`HotKeyMap[]`): Array of hotkey mappings specific to the bound element.
 
 ### NgxCheatsheetComponent
 
