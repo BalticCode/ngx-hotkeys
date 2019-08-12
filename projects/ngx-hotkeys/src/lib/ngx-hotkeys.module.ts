@@ -2,7 +2,7 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 import {NgxCheatsheetComponent} from './ngx-cheatsheet/ngx-cheatsheet.component';
-import {NgxHotkeysService} from './ngx-hotkeys.service';
+import {NgxHotkeysService} from './services/ngx-hotkeys.service';
 import {HotkeyOptionsToken} from './token';
 import {HotkeyOptions} from './interfaces';
 

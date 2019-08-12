@@ -1,8 +1,8 @@
 import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
 
-import { Hotkey, HotkeyOptions } from './interfaces';
-import { HotkeyOptionsToken } from './token';
+import { Hotkey, HotkeyOptions } from '../interfaces';
+import { HotkeyOptionsToken } from '../token';
 import { share } from 'rxjs/internal/operators';
 import { EventManager } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
@@ -16,7 +16,9 @@ const _defaultOptions: HotkeyOptions = {
   cheatSheetCloseEscDescription: 'Hide this help menu'
 };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class NgxHotkeysService implements OnDestroy {
 
   private document?: Document;

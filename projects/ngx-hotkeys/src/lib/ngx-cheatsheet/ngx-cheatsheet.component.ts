@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { NgxHotkeysService } from '../ngx-hotkeys.service';
+import { NgxHotkeysService } from '../services/ngx-hotkeys.service';
 import { Hotkey } from '../interfaces';
 
 @Component({
@@ -76,7 +76,7 @@ export class NgxCheatsheetComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this._subscription) {
+    if (this._subscription && !this._subscription.closed) {
       this._subscription.unsubscribe();
     }
   }
