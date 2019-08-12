@@ -1,31 +1,20 @@
-export interface IHotkey {
+export interface Hotkey {
+  element?: any;
   /**
    * Key binding
    */
-  combo: string | string[];
+  combo: string;
   /**
    * Handler to call when binding is triggered
    */
-  handler: (event: KeyboardEvent, combo: string) => ExtendedKeyboardEvent | boolean;
-  /**
-   * The type of event to listen for (for mousetrap)
-   */
-  specificEvent?: string;
-  /**
-   * An array of tag names to allow this combo in ('INPUT', 'SELECT', and/or 'TEXTAREA')
-   */
-  allowIn?: string[];
+  handler: () => void;
   /**
    * Description for the help menu
    */
   description?: string;
-  /**
-   * Custom display format used in cheatsheet
-   */
-  format?: string[];
 }
 
-export interface IHotkeyOptions {
+export interface HotkeyOptions {
   /**
    * Disable the cheat sheet popover dialog? Default: false
    */
@@ -50,12 +39,4 @@ export interface IHotkeyOptions {
    * Description for the ESC key for closing the cheat sheet (if enabled). Default: 'Hide this help menu'
    */
   cheatSheetCloseEscDescription?: string;
-}
-
-export interface ExtendedKeyboardEvent extends KeyboardEvent {
-  returnValue: boolean; // IE returnValue
-}
-
-export interface HotKeyMap {
-  [combo: string]: (event: KeyboardEvent, combo: string) => ExtendedKeyboardEvent | boolean;
 }
