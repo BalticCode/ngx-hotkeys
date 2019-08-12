@@ -31,7 +31,7 @@ export class NgxCheatsheetComponent implements OnInit, OnDestroy {
   };
 
   constructor(private hotkeysService: NgxHotkeysService) {
-    this.title = this.hotkeysService.options.cheatSheetTitle;
+    this.title = this.hotkeysService.options.cheatSheetTitle || this.title;
   }
 
   ngOnInit(): void {
