@@ -1,11 +1,10 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "downlevelIteration": true,
     "importHelpers": true,
-    "module": "esnext",
-    "outDir": "./dist/out-tsc",
+    "module": "es2015",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
@@ -20,9 +19,13 @@
       "dom"
     ],
     "paths": {
-      "ngx-hotkeys": [
-        "dist/ngx-hotkeys"
+      "@balticcode/ngx-hotkeys": [
+        "projects/ngx-hotkeys/src/public_api.ts"
       ]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }
