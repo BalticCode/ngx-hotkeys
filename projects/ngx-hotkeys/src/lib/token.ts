@@ -1,5 +1,5 @@
 import {InjectionToken} from '@angular/core';
 
-import {IHotkeyOptions} from './interfaces';
+import {HotkeyOptions} from './interfaces';
 
-export const HotkeyOptions = new InjectionToken<IHotkeyOptions>('HotkeyOptions');
+export const HotkeyOptionsToken = new InjectionToken<HotkeyOptions>('HotkeyOptions');

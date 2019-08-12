@@ -1,13 +1,13 @@
 import { Inject, Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 
-import { IHotkey, IHotkeyOptions } from './interfaces';
-import { HotkeyOptions } from './token';
+import { Hotkey, HotkeyOptions } from './interfaces';
+import { HotkeyOptionsToken } from './token';
 import { share } from 'rxjs/internal/operators';
 import { EventManager } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
 
-const _defaultOptions: IHotkeyOptions = {
+const _defaultOptions: HotkeyOptions = {
   disableCheatSheet: false,
   cheatSheetTitle: 'Keyboard Shortcuts:',
   cheatSheetHotkey: 'shift.?',
@@ -21,17 +21,18 @@ export class NgxHotkeysService implements OnDestroy {
 
   private document?: Document;
 
-  private _serviceOptions: IHotkeyOptions;
-  private _registeredHotkeys: Set<IHotkey> = new Set();
-  private _pausedHotkeys: Set<IHotkey> = new Set();
+  private _serviceOptions: HotkeyOptions;
+  private _registeredHotkeys: Set<Hotkey> = new Set();
+  private _pausedHotkeys: Set<Hotkey> = new Set();
 
   private _cheatSheetToggled: Subject<any> = new Subject();
+  private bindingSubscriptions: Map<string, Subscription> = new Map();
 
-  private defaults: Partial<IHotkey>;
+  private defaults: Partial<Hotkey>;
 
   constructor(
-    @Inject(HotkeyOptions) private _options: IHotkeyOptions,
     private eventManager: EventManager,
+    @Inject(HotkeyOptionsToken) private _options?: HotkeyOptions,
     @Inject(DOCUMENT) doc?: any
   ) {
     this.document = doc;
@@ -64,7 +65,7 @@ export class NgxHotkeysService implements OnDestroy {
    * Returns the registered hotkeys as array.
    * @returns all registered hotkeys
    */
-  public get hotkeys(): IHotkey[] {
+  public get hotkeys(): Hotkey[] {
     return Array.from(this._registeredHotkeys);
   }
 
@@ -78,7 +79,7 @@ export class NgxHotkeysService implements OnDestroy {
     );
   }
 
-  public get options(): IHotkeyOptions {
+  public get options(): HotkeyOptions {
     return this._serviceOptions;
   }
 
@@ -87,8 +88,8 @@ export class NgxHotkeysService implements OnDestroy {
    * @param hotkey hotkeys to listen for
    * @param unpausing flag indicating if the hotkeys should be unpaused
    */
-  public register(hotkey: IHotkey | IHotkey[], unpausing = false): void {
-    let hotkeys: IHotkey[] = [].concat(hotkey);
+  public register(hotkey: Hotkey | Hotkey[], unpausing = false): void {
+    let hotkeys: Hotkey[] = [].concat(hotkey);
     if (unpausing) {
       hotkeys = Array.from(this._pausedHotkeys);
     }
@@ -97,10 +98,12 @@ export class NgxHotkeysService implements OnDestroy {
         this._pausedHotkeys.delete(h);
       }
       this._registeredHotkeys.add(h);
-      this.bindToEventManager(h)
-      .subscribe(() => {
-        h.handler();
-      });
+
+      this.bindingSubscriptions.set(h.combo,
+        this.bindToEventManager(h)
+          .subscribe(() => {
+            h.handler();
+          }));
     });
   }
 
@@ -109,16 +112,15 @@ export class NgxHotkeysService implements OnDestroy {
    * @param hotkey hotkey filter
    * @param pausing flag indicating if the hotkeys should be paused
    */
-  public unregister(hotkey: IHotkey | IHotkey[], pausing = false): void {
-    const hotkeys: IHotkey[] = [].concat(hotkey);
+  public unregister(hotkey: Hotkey | Hotkey[], pausing = false): void {
+    const hotkeys: Hotkey[] = [].concat(hotkey);
 
     hotkeys.forEach(h => {
       this._registeredHotkeys.delete(h);
       if (pausing) {
         this._pausedHotkeys.add(h);
       }
-      // TODO unregister
-      // this._mousetrapInstance.unbind(h.combo, h.specificEvent);
+      this.unbindFromEventManager(h);
     });
   }
 
@@ -127,7 +129,7 @@ export class NgxHotkeysService implements OnDestroy {
    * @param combo combo to match against
    * @returns all matched hotkeys
    */
-  public get(combo?: string | string[]): IHotkey[] {
+  public get(combo?: string): Hotkey[] {
     return this.hotkeys.filter(h => h.combo === combo);
   }
 
@@ -135,11 +137,11 @@ export class NgxHotkeysService implements OnDestroy {
    * Stops listening for the specified hotkeys.
    * @param hotkey hotkey filter
    */
-  public pause(hotkey?: IHotkey | IHotkey[]): void {
+  public pause(hotkey?: Hotkey | Hotkey[]): void {
     if (!hotkey) {
       return this.pause(this.hotkeys);
     }
-    const hotkeys: IHotkey[] = [].concat(hotkey);
+    const hotkeys: Hotkey[] = [].concat(hotkey);
     this.unregister(hotkeys, true);
   }
 
@@ -147,11 +149,11 @@ export class NgxHotkeysService implements OnDestroy {
    * Resumes listening for the specified hotkeys.
    * @param hotkey hotkey filter
    */
-  public unpause(hotkey?: IHotkey | IHotkey[]): void {
+  public unpause(hotkey?: Hotkey | Hotkey[]): void {
     if (!hotkey) {
       return this.unpause(this.hotkeys);
     }
-    const hotkeys: IHotkey[] = [].concat(hotkey);
+    const hotkeys: Hotkey[] = [].concat(hotkey);
     this.register(hotkeys, true);
   }
 
@@ -159,8 +161,7 @@ export class NgxHotkeysService implements OnDestroy {
    * Resets all hotkeys.
    */
   public reset(): void {
-    // TODO clear all
-    // this._mousetrapInstance.reset();
+    this._registeredHotkeys.forEach((h: Hotkey) => this.unbindFromEventManager(h));
     this._registeredHotkeys.clear();
     this._pausedHotkeys.clear();
   }
@@ -169,9 +170,9 @@ export class NgxHotkeysService implements OnDestroy {
     this.reset();
   }
 
-  private bindToEventManager(hotkey: Partial<IHotkey>): any {
+  private bindToEventManager(hotkey: Hotkey): Observable<any> {
     const merged = { ...this.defaults, ...hotkey };
-    const event = `keydown.${merged.combo}`;
+    const event = `keydown.${merged.combo.replace('+', '.')}`;
 
     return new Observable(observer => {
       const handler = (e: Event) => {
@@ -189,5 +190,15 @@ export class NgxHotkeysService implements OnDestroy {
         dispose();
       };
     });
+  }
+
+  private unbindFromEventManager(hotkey: Hotkey): void {
+    const merged = { ...this.defaults, ...hotkey };
+
+    const keySub = this.bindingSubscriptions.get(merged.combo);
+    if (keySub && !keySub.closed) {
+      keySub.unsubscribe();
+      this.bindingSubscriptions.delete(merged.combo);
+    }
   }
 }

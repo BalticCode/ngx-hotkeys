@@ -1,9 +1,9 @@
-export interface IHotkey {
+export interface Hotkey {
   element?: any;
   /**
    * Key binding
    */
-  combo: string | string[];
+  combo: string;
   /**
    * Handler to call when binding is triggered
    */
@@ -12,13 +12,9 @@ export interface IHotkey {
    * Description for the help menu
    */
   description?: string;
-  /**
-   * Custom display format used in cheatsheet
-   */
-  format?: string[];
 }
 
-export interface IHotkeyOptions {
+export interface HotkeyOptions {
   /**
    * Disable the cheat sheet popover dialog? Default: false
    */
@@ -43,8 +39,4 @@ export interface IHotkeyOptions {
    * Description for the ESC key for closing the cheat sheet (if enabled). Default: 'Hide this help menu'
    */
   cheatSheetCloseEscDescription?: string;
-}
-
-export interface HotKeyMap {
-  [combo: string]: () => void;
 }
