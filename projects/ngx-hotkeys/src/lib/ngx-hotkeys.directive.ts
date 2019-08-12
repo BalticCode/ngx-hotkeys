@@ -1,7 +1,5 @@
 import {Directive, ElementRef, Input, OnDestroy, OnInit} from '@angular/core';
 
-import 'mousetrap';
-
 import {HotKeyMap, IHotkey} from './interfaces';
 import {NgxHotkeysService} from './ngx-hotkeys.service';
 
@@ -14,12 +12,10 @@ export class NgxHotkeysDirective implements OnInit, OnDestroy {
   @Input()
   hotkeys: HotKeyMap[];
 
-  private _mousetrapInstance: MousetrapInstance;
   private _hotkeysList: IHotkey[] = [];
   private _oldHotkeys: IHotkey[] = [];
 
   constructor(private _hotkeysService: NgxHotkeysService, private _elementRef: ElementRef) {
-    this._mousetrapInstance = new Mousetrap(this._elementRef.nativeElement); // Bind hotkeys to the current element (and any children)
   }
 
   ngOnInit() {
@@ -36,13 +32,15 @@ export class NgxHotkeysDirective implements OnInit, OnDestroy {
         this._hotkeysService.unregister(oldHotkey);
       }
       this._hotkeysList.push(hotkeyObj);
-      this._mousetrapInstance.bind(hotkeyObj.combo, hotkeyObj.handler);
+      // this._mousetrapInstance.bind(hotkeyObj.combo, hotkeyObj.handler);
+      // TODO bind
     }
   }
 
   ngOnDestroy() {
     for (const hotkey of this._hotkeysList) {
-      this._mousetrapInstance.unbind(hotkey.combo);
+      // this._mousetrapInstance.unbind(hotkey.combo);
+      // TODO unbind
     }
     this._hotkeysService.register(this._oldHotkeys);
   }

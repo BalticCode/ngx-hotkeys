@@ -10,8 +10,8 @@ export class AppComponent {
 
   constructor(private _hotkeysService: NgxHotkeysService) {
     this._hotkeysService.register({
-      combo: 'shift+g',
-      handler: event => {
+      combo: 'shift.g',
+      handler: () => {
         console.log('Typed hotkey');
         return false; // Prevent bubbling
       },

@@ -1,4 +1,5 @@
 export interface IHotkey {
+  element?: any;
   /**
    * Key binding
    */
@@ -6,15 +7,7 @@ export interface IHotkey {
   /**
    * Handler to call when binding is triggered
    */
-  handler: (event: KeyboardEvent, combo: string) => ExtendedKeyboardEvent | boolean;
-  /**
-   * The type of event to listen for (for mousetrap)
-   */
-  specificEvent?: string;
-  /**
-   * An array of tag names to allow this combo in ('INPUT', 'SELECT', and/or 'TEXTAREA')
-   */
-  allowIn?: string[];
+  handler: () => void;
   /**
    * Description for the help menu
    */
@@ -52,10 +45,6 @@ export interface IHotkeyOptions {
   cheatSheetCloseEscDescription?: string;
 }
 
-export interface ExtendedKeyboardEvent extends KeyboardEvent {
-  returnValue: boolean; // IE returnValue
-}
-
 export interface HotKeyMap {
-  [combo: string]: (event: KeyboardEvent, combo: string) => ExtendedKeyboardEvent | boolean;
+  [combo: string]: () => void;
 }

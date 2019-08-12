@@ -1,16 +1,16 @@
-import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
-import 'mousetrap';
-
-import {IHotkey, IHotkeyOptions} from './interfaces';
-import {HotkeyOptions} from './token';
-import {share} from 'rxjs/internal/operators';
+import { IHotkey, IHotkeyOptions } from './interfaces';
+import { HotkeyOptions } from './token';
+import { share } from 'rxjs/internal/operators';
+import { EventManager } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 
 const _defaultOptions: IHotkeyOptions = {
   disableCheatSheet: false,
   cheatSheetTitle: 'Keyboard Shortcuts:',
-  cheatSheetHotkey: '?',
+  cheatSheetHotkey: 'shift.?',
   cheatSheetHotkeyDescription: 'Show / hide this help menu',
   cheatSheetCloseEsc: false,
   cheatSheetCloseEscDescription: 'Hide this help menu'
@@ -19,29 +19,32 @@ const _defaultOptions: IHotkeyOptions = {
 @Injectable()
 export class NgxHotkeysService implements OnDestroy {
 
+  private document?: Document;
+
   private _serviceOptions: IHotkeyOptions;
   private _registeredHotkeys: Set<IHotkey> = new Set();
   private _pausedHotkeys: Set<IHotkey> = new Set();
-  private _mousetrapInstance: MousetrapInstance;
-  private _cheatSheetToggled: Subject<any> = new Subject();
-  private _preventIn = ['INPUT', 'SELECT', 'TEXTAREA'];
 
-  constructor(@Inject(HotkeyOptions) private _options: IHotkeyOptions) {
-    this._serviceOptions = Object.assign(_defaultOptions, this._options);
-    Mousetrap.prototype.stopCallback = (event: KeyboardEvent, element: HTMLElement, combo: string, callback: Function) => {
-      // if the element has the class "mousetrap" then no need to stop
-      if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
-        return false;
-      }
-      return (element.contentEditable && element.contentEditable === 'true');
-    };
-    this._mousetrapInstance = new (<any>Mousetrap)();
+  private _cheatSheetToggled: Subject<any> = new Subject();
+
+  private defaults: Partial<IHotkey>;
+
+  constructor(
+    @Inject(HotkeyOptions) private _options: IHotkeyOptions,
+    private eventManager: EventManager,
+    @Inject(DOCUMENT) doc?: any
+  ) {
+    this.document = doc;
+    this.defaults = { element: this.document };
+
+    this._serviceOptions = { ..._defaultOptions, ...this._options };
+
     if (!this._serviceOptions.disableCheatSheet) {
       this.register({
         combo: this._serviceOptions.cheatSheetHotkey,
-        handler: function (event: KeyboardEvent) {
+        handler: () => {
           this._cheatSheetToggled.next();
-        }.bind(this),
+        },
         description: this._serviceOptions.cheatSheetHotkeyDescription
       });
     }
@@ -49,10 +52,9 @@ export class NgxHotkeysService implements OnDestroy {
     if (this._serviceOptions.cheatSheetCloseEsc) {
       this.register({
         combo: 'esc',
-        handler: function (event: KeyboardEvent) {
+        handler: () => {
           this._cheatSheetToggled.next(false);
-        }.bind(this),
-        allowIn: ['HOTKEYS-CHEATSHEET'],
+        },
         description: this._serviceOptions.cheatSheetCloseEscDescription
       });
     }
@@ -95,7 +97,10 @@ export class NgxHotkeysService implements OnDestroy {
         this._pausedHotkeys.delete(h);
       }
       this._registeredHotkeys.add(h);
-      this.bindToMoustrap(h);
+      this.bindToEventManager(h)
+      .subscribe(() => {
+        h.handler();
+      });
     });
   }
 
@@ -112,7 +117,8 @@ export class NgxHotkeysService implements OnDestroy {
       if (pausing) {
         this._pausedHotkeys.add(h);
       }
-      this._mousetrapInstance.unbind(h.combo, h.specificEvent);
+      // TODO unregister
+      // this._mousetrapInstance.unbind(h.combo, h.specificEvent);
     });
   }
 
@@ -153,7 +159,8 @@ export class NgxHotkeysService implements OnDestroy {
    * Resets all hotkeys.
    */
   public reset(): void {
-    this._mousetrapInstance.reset();
+    // TODO clear all
+    // this._mousetrapInstance.reset();
     this._registeredHotkeys.clear();
     this._pausedHotkeys.clear();
   }
@@ -162,31 +169,25 @@ export class NgxHotkeysService implements OnDestroy {
     this.reset();
   }
 
-  private bindToMoustrap(hotkey: IHotkey): void {
+  private bindToEventManager(hotkey: Partial<IHotkey>): any {
+    const merged = { ...this.defaults, ...hotkey };
+    const event = `keydown.${merged.combo}`;
 
-    this._mousetrapInstance.bind(hotkey.combo,
-      (event: KeyboardEvent, combo: string) => {
-        let shouldExecute = true;
+    return new Observable(observer => {
+      const handler = (e: Event) => {
+        e.preventDefault();
+        observer.next(e);
+      };
 
-        // if the callback is executed directly `hotkey.get('w').callback()`
-        // there will be no event, so just execute the callback.
-        if (event) {
-          const target: HTMLElement = <HTMLElement>(event.target || event.srcElement); // srcElement is IE only
-          const nodeName: string = target.nodeName.toUpperCase();
+      const dispose = this.eventManager.addEventListener(
+        merged.element,
+        event,
+        handler
+      );
 
-          // check if the input has a mousetrap class, and skip checking preventIn if so
-          if ((' ' + target.className + ' ').indexOf(' mousetrap ') > -1) {
-            shouldExecute = true;
-          } else if (this._preventIn.indexOf(nodeName) > -1 && hotkey.allowIn.map(allow => allow.toUpperCase()).indexOf(nodeName) === -1) {
-            // don't execute callback if the event was fired from inside an element listed in preventIn but not in allowIn
-            shouldExecute = false;
-          }
-        }
-
-        if (shouldExecute) {
-          return hotkey.handler.apply(this, [event, combo]);
-        }
-      },
-      hotkey.specificEvent);
+      return () => {
+        dispose();
+      };
+    });
   }
 }
