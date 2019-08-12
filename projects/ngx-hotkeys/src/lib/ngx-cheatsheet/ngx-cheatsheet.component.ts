@@ -1,8 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
-import {NgxHotkeysService} from '../ngx-hotkeys.service';
-import {IHotkey} from '../interfaces';
+import { NgxHotkeysService } from '../ngx-hotkeys.service';
+import { Hotkey } from '../interfaces';
 
 @Component({
   selector: 'ngx-cheatsheet',
@@ -15,7 +15,7 @@ export class NgxCheatsheetComponent implements OnInit, OnDestroy {
   title: string;
 
   helpVisible = false;
-  hotkeys: IHotkey[];
+  hotkeys: Hotkey[];
 
   private _subscription: Subscription;
 
@@ -50,16 +50,13 @@ export class NgxCheatsheetComponent implements OnInit, OnDestroy {
       });
   }
 
-  formatHotkey(hotkey: IHotkey): string[] {
-    if (!hotkey.format) {
-      const combo: string = Array.isArray(hotkey.combo) ? hotkey.combo[0] : hotkey.combo;
-      const sequence: string[] = combo.split(/[\s]/);
-      for (let i = 0; i < sequence.length; i++) {
-        sequence[i] = this.symbolize(sequence[i]);
-      }
-      hotkey.format = sequence;
+  formatHotkey(hotkey: Hotkey): string[] {
+    const combo: string = Array.isArray(hotkey.combo) ? hotkey.combo[0] : hotkey.combo;
+    const sequence: string[] = combo.split(/[\s]/);
+    for (let i = 0; i < sequence.length; i++) {
+      sequence[i] = this.symbolize(sequence[i]);
     }
-    return hotkey.format;
+    return sequence;
   }
 
   private symbolize(combo: string): string {
@@ -68,7 +65,7 @@ export class NgxCheatsheetComponent implements OnInit, OnDestroy {
       // try to resolve command / ctrl based on OS:
       if (comboSplit[i] === 'mod') {
         if (window.navigator && window.navigator.platform.indexOf('Mac') >= 0) {
-          comboSplit[i] = 'command';
+          comboSplit[i] = 'meta';
         } else {
           comboSplit[i] = 'ctrl';
         }
