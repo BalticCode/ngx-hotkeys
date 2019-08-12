@@ -1,5 +1,8 @@
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/BalticCode/ngx-hotkeys/compare/2.1.3...3.0.0) (2018-08-14)
+
 <a name="2.1.3"></a>
-# [2.1.3](https://github.com/BalticCode/ngx-hotkeys/compare/1.0.0...2.1.3) (2018-08-14)
+# [2.1.3](https://github.com/BalticCode/ngx-hotkeys/compare/2.0.0...2.1.3) (2018-08-14)
 
 ### Features
 
