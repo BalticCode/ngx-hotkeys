@@ -1,6 +1,6 @@
 {
   "name": "@balticcode/ngx-hotkeys-schematics",
-  "version": "2.1.3",
+  "version": "300",
   "description": "Schematics for @balticcode/ngx-hotkeys.",
   "repository": {
     "type": "git",
@@ -12,10 +12,5 @@
     "url": "https://github.com/BalticCode/ngx-hotkeys/issues"
   },
   "homepage": "https://github.com/BalticCode/ngx-hotkeys#readme",
-  "schematics": "./src/collection.json",
-  "peerDependencies": {
-    "@angular-devkit/core": "^0.7.3",
-    "@angular-devkit/schematics": "^0.7.3",
-    "typescript": "~2.9.2"
-  }
+  "schematics": "./src/collection.json"
 }

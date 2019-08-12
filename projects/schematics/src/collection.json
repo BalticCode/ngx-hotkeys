@@ -3,7 +3,8 @@
   "schematics": {
     "ng-add": {
       "description": "Installs and injects the @balticcode/ngx-hotkeys library",
-      "factory": "./ng-add/index"
+      "factory": "./ng-add/index",
+      "schema": "./ng-add/schema.json"
     }
   }
 }

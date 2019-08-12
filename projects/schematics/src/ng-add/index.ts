@@ -1,65 +1,57 @@
-import {
-  chain,
-  noop,
-  Rule,
-  SchematicContext,
-  Tree
-} from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree, chain, noop } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
-import {
-  addModuleImportToRootModule,
-  addPackageJsonDependency,
-  getProjectFromWorkspace,
-  getWorkspace,
-  NodeDependency,
-  NodeDependencyType
-} from '@balticcode/ngx-schematics-utils';
+import { getWorkspace } from '@schematics/angular/utility/config';
 
 import { Schema } from './schema';
+import { addPackageToPackageJson } from '../utils/package-utils';
+import { getProjectFromWorkspace } from '../utils/project-utils';
+import { addModuleImportToRootModule } from '../utils/ast';
+
+const pkgName = '@balticcode/ngx-hotkeys';
+const version = '3.0.0';
+
+export default function (options: Schema): Rule {
+    return chain([
+        addPackageJsonDependencies(),
+        installPackageJsonDependencies(),
+        options && options.skipImport ? noop() : addModuleToImports(options)
+    ]);
+}
 
 function addPackageJsonDependencies(): Rule {
-  return (host: Tree, context: SchematicContext) => {
-    const dependencies: NodeDependency[] = [{ type: NodeDependencyType.Dependencies, version: '^2.1.3', name: '@balticcode/ngx-hotkeys' }];
+    return (host: Tree, context: SchematicContext) => {
 
-    dependencies.forEach(dependency => {
-      addPackageJsonDependency(host, dependency);
-      context.logger.log('info', `✅️ Added "${dependency.name}" into ${dependency.type}`);
-    });
+        addPackageToPackageJson(host, `${pkgName}`, `~${version}`);
+        context.logger.log('info', `✅️ Added "${pkgName}" to package.json`);
 
-    return host;
-  };
+        return host;
+    };
 }
 
 function installPackageJsonDependencies(): Rule {
-  return (host: Tree, context: SchematicContext) => {
-    context.addTask(new NodePackageInstallTask());
-    context.logger.log('info', `🔍 Installing packages...`);
-    return host;
-  };
+    return (host: Tree, context: SchematicContext) => {
+
+        context.addTask(new NodePackageInstallTask());
+        context.logger.log('info', `🔍 Installing package...`);
+
+        return host;
+    };
 }
 
 function addModuleToImports(options: Schema): Rule {
-  return (host: Tree, context: SchematicContext) => {
-    const workspace = getWorkspace(host);
+    return (host: Tree, context: SchematicContext) => {
+        const workspace = getWorkspace(host);
 
-    const project = getProjectFromWorkspace(
-      workspace,
-      // Takes the default project in case it's not provided by CLI
-      options.project ? options.project : workspace.defaultProject
-    );
-    const moduleName = 'NgxHotkeysModule.forRoot()';
+        const project = getProjectFromWorkspace(
+            workspace,
+            // Takes the default project in case it's not provided by CLI
+            options.project ? options.project : workspace.defaultProject
+        );
+        const moduleName = 'NgxHotkeysModule.forRoot()';
 
-    addModuleImportToRootModule(host, moduleName, '@balticcode/ngx-hotkeys', project);
-    context.logger.log('info', `✅️ "${moduleName}" is imported`);
+        addModuleImportToRootModule(host, moduleName, '@balticcode/ngx-hotkeys', project);
+        context.logger.log('info', `✅️ "${moduleName}" is imported`);
 
-    return host;
-  };
-}
-
-export default function (options: Schema): Rule {
-  return chain([
-    options && options.skipPackageJson ? noop() : addPackageJsonDependencies(),
-    options && options.skipPackageJson ? noop() : installPackageJsonDependencies(),
-    options && options.skipModuleImport ? noop() : addModuleToImports(options)
-  ]);
+        return host;
+    };
 }
