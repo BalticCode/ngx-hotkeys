@@ -6,10 +6,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:demo:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
+    "build:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
     "schematics:watch": "cd ./schematics/ && npm link && cd .. && npm link schematics && npm run build --prefix ./schematics -- --watch",
     "schematics:copy": "copyfiles -u 2 ./schematics/src/**/*.js ./schematics/src/collection.json ./dist/libs/ngx-hotkeys/schematics",
-    "build:prod": "ng build ngx-hotkeys && npm run copy",
+    "build:prod": "ng build ngx-hotkeys && npm run copy && npm run build:docs",
     "copy": "npm run schematics:copy && copyfiles ./LICENSE ./README.md ./dist/libs/ngx-hotkeys",
     "test": "ng test",
     "lint": "ng lint",
@@ -55,6 +55,7 @@
     "ts-node": "~7.0.0",
     "tsickle": "^0.36.0",
     "tslint": "~5.15.0",
-    "typescript": "~3.5.3"
+    "typescript": "~3.5.3",
+    "webpack": "^4.39.2"
   }
 }
