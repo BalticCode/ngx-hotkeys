@@ -20,6 +20,9 @@
   },
   "homepage": "https://github.com/BalticCode/ngx-hotkeys#readme",
   "schematics": "./schematics/collection.json",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@angular/common": ">=8.0.0",
     "@angular/core": ">=8.0.0"

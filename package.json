@@ -6,12 +6,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:lib": "ng build ngx-hotkeys",
-    "build:lib:prod": "ng build --prod ngx-hotkeys",
     "build:demo:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
-    "build:schematics": "tsc -p projects/schematics/tsconfig.json",
-    "schematics:copy": "npm run build:schematics && webpack",
-    "build:prod": "npm run build:lib:prod && npm run build:schematics && webpack",
+    "schematics:watch": "cd ./schematics/ && npm link && cd .. && npm link schematics && npm run build --prefix ./schematics -- --watch",
+    "schematics:copy": "copyfiles -u 2 ./schematics/src/**/*.js ./schematics/src/collection.json ./dist/libs/ngx-hotkeys/schematics",
+    "build:prod": "ng build ngx-hotkeys && npm run copy",
+    "copy": "npm run schematics:copy && copyfiles ./LICENSE ./README.md ./dist/libs/ngx-hotkeys",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -43,7 +42,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "^5.0.1",
-    "copy-webpack-plugin": "^4.5.2",
+    "copyfiles": "^2.1.1",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
@@ -56,9 +55,6 @@
     "ts-node": "~7.0.0",
     "tsickle": "^0.36.0",
     "tslint": "~5.15.0",
-    "typescript": "~3.5.3",
-    "webpack": "^4.16.5",
-    "webpack-cli": "^3.1.0",
-    "webpack-node-externals": "^1.7.2"
+    "typescript": "~3.5.3"
   }
 }
