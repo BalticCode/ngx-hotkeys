@@ -1,5 +1,11 @@
 <a name="3.0.0"></a>
-# [3.0.0](https://github.com/BalticCode/ngx-hotkeys/compare/2.1.3...3.0.0) (2018-08-14)
+# [3.0.0](https://github.com/BalticCode/ngx-hotkeys/compare/2.1.3...3.0.0) (2018-08-17)
+
+### Features
+
+* complete rewrite of the library
+  * removed external dependencies
+  * use Angular mechanics to listen to shortcuts
 
 <a name="2.1.3"></a>
 # [2.1.3](https://github.com/BalticCode/ngx-hotkeys/compare/2.0.0...2.1.3) (2018-08-14)
