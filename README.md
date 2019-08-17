@@ -29,7 +29,7 @@ This command will:
 - Run `npm install`.
 - Import `NgxHotkeysModule.forRoot()` into the root module of your default application (or defining a project by using the `--project=<PROJECT_NAME>` CLI parameter).
 
-In case you want to do it manually, there are available CLI parameters for skipping the steps above: `skipPackageJson` and `skipModuleImport`.
+In case you want to do it manually, there are available CLI parameters for skipping the steps above: `skipImport`.
 
 ## Usage
 
