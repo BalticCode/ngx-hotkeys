@@ -69,8 +69,8 @@ export default function(options: SchemaOptions): Rule {
     options.module = findRootModule(host, options.module, sourceRoot) as string;
 
     return chain([
-      addImportsToModuleFile(options, ['NgxHotkeysModule.forRoot()']),
-      addImportsToModuleDeclaration(options, ['NgxHotkeysModule'])
+      addImportsToModuleFile(options, ['NgxHotkeysModule']),
+      addImportsToModuleDeclaration(options, ['NgxHotkeysModule.forRoot()'])
     ])(host, context);
   };
 }
