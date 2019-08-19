@@ -1,6 +1,6 @@
 {
   "name": "@balticcode/ngx-hotkeys",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "An Angular module providing hotkey support.",
   "repository": {
     "type": "git",
