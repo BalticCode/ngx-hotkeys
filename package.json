@@ -1,16 +1,16 @@
 {
   "name": "@balticcode/ngx-hotkeys-demo",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A demo application showing the usage of ngx-hotkeys.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
-    "schematics:watch": "cd ./schematics/ && npm link && cd .. && npm link schematics && npm run build --prefix ./schematics -- --watch",
-    "schematics:copy": "copyfiles -u 2 ./schematics/src/**/*.js ./schematics/src/collection.json ./dist/libs/ngx-hotkeys/schematics",
     "build:prod": "ng build ngx-hotkeys && npm run copy && npm run build:docs",
     "copy": "npm run schematics:copy && copyfiles ./LICENSE ./README.md ./dist/libs/ngx-hotkeys",
+    "schematics:copy": "copyfiles -u 2 ./schematics/src/**/*.js ./schematics/src/**/*.json ./dist/libs/ngx-hotkeys/schematics",
+    "build:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
+    "schematics:watch": "cd ./schematics/ && npm link && cd .. && npm link schematics && npm run build --prefix ./schematics -- --watch",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

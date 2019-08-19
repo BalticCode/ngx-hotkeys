@@ -1,3 +1,10 @@
+<a name="3.0.1"></a>
+# [3.0.1](https://github.com/BalticCode/ngx-hotkeys/compare/3.0.0...3.0.1) (2018-08-19)
+
+### Fixes
+
+* Fixed schematics
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/BalticCode/ngx-hotkeys/compare/2.1.3...3.0.0) (2018-08-17)
 
