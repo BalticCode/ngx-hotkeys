@@ -2,7 +2,7 @@ import { Inject, Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { Hotkey, HotkeyOptions } from '../interfaces';
-import { HotkeyOptionsToken } from '../token';
+import { HOTKEY_OPTIONS } from '../token';
 import { share } from 'rxjs/internal/operators';
 import { EventManager } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
@@ -23,9 +23,9 @@ export class NgxHotkeysService implements OnDestroy {
 
   private document?: Document;
 
-  private _serviceOptions: HotkeyOptions;
-  private _registeredHotkeys: Set<Hotkey> = new Set();
-  private _pausedHotkeys: Set<Hotkey> = new Set();
+  private configuration: HotkeyOptions;
+  private registeredHotkeys: Set<Hotkey> = new Set();
+  private pausedHotkeys: Set<Hotkey> = new Set();
 
   private _cheatSheetToggled: Subject<any> = new Subject();
   private bindingSubscriptions: Map<string, Subscription> = new Map();
@@ -34,31 +34,31 @@ export class NgxHotkeysService implements OnDestroy {
 
   constructor(
     private eventManager: EventManager,
-    @Inject(HotkeyOptionsToken) private _options?: HotkeyOptions,
+    @Inject(HOTKEY_OPTIONS) private config?: HotkeyOptions,
     @Inject(DOCUMENT) doc?: any
   ) {
     this.document = doc;
     this.defaults = { element: this.document };
 
-    this._serviceOptions = { ..._defaultOptions, ...this._options };
+    this.configuration = { ..._defaultOptions, ...this.config };
 
-    if (!this._serviceOptions.disableCheatSheet) {
+    if (!this.configuration.disableCheatSheet) {
       this.register({
-        combo: this._serviceOptions.cheatSheetHotkey,
+        combo: this.configuration.cheatSheetHotkey,
         handler: () => {
           this._cheatSheetToggled.next();
         },
-        description: this._serviceOptions.cheatSheetHotkeyDescription
+        description: this.configuration.cheatSheetHotkeyDescription
       });
     }
 
-    if (this._serviceOptions.cheatSheetCloseEsc) {
+    if (this.configuration.cheatSheetCloseEsc) {
       this.register({
         combo: 'esc',
         handler: () => {
           this._cheatSheetToggled.next(false);
         },
-        description: this._serviceOptions.cheatSheetCloseEscDescription
+        description: this.configuration.cheatSheetCloseEscDescription
       });
     }
   }
@@ -68,7 +68,7 @@ export class NgxHotkeysService implements OnDestroy {
    * @returns all registered hotkeys
    */
   public get hotkeys(): Hotkey[] {
-    return Array.from(this._registeredHotkeys);
+    return Array.from(this.registeredHotkeys);
   }
 
   /**
@@ -85,7 +85,7 @@ export class NgxHotkeysService implements OnDestroy {
    * Returns the options used to configure this service.
    */
   public get options(): HotkeyOptions {
-    return this._serviceOptions;
+    return this.configuration;
   }
 
   /**
@@ -96,13 +96,13 @@ export class NgxHotkeysService implements OnDestroy {
   public register(hotkey: Hotkey | Hotkey[], unpausing = false): void {
     let hotkeys: Hotkey[] = [].concat(hotkey);
     if (unpausing) {
-      hotkeys = Array.from(this._pausedHotkeys);
+      hotkeys = Array.from(this.pausedHotkeys);
     }
     hotkeys.forEach(h => {
       if (unpausing) {
-        this._pausedHotkeys.delete(h);
+        this.pausedHotkeys.delete(h);
       }
-      this._registeredHotkeys.add(h);
+      this.registeredHotkeys.add(h);
 
       this.bindingSubscriptions.set(h.combo,
         this.bindToEventManager(h)
@@ -121,9 +121,9 @@ export class NgxHotkeysService implements OnDestroy {
     const hotkeys: Hotkey[] = [].concat(hotkey);
 
     hotkeys.forEach(h => {
-      this._registeredHotkeys.delete(h);
+      this.registeredHotkeys.delete(h);
       if (pausing) {
-        this._pausedHotkeys.add(h);
+        this.pausedHotkeys.add(h);
       }
       this.unbindFromEventManager(h);
     });
@@ -166,9 +166,9 @@ export class NgxHotkeysService implements OnDestroy {
    * Resets all hotkeys.
    */
   public reset(): void {
-    this._registeredHotkeys.forEach((h: Hotkey) => this.unbindFromEventManager(h));
-    this._registeredHotkeys.clear();
-    this._pausedHotkeys.clear();
+    this.registeredHotkeys.forEach((h: Hotkey) => this.unbindFromEventManager(h));
+    this.registeredHotkeys.clear();
+    this.pausedHotkeys.clear();
   }
 
   public ngOnDestroy(): void {
