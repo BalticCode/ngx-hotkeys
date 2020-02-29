@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 
 import {NgxCheatsheetComponent} from './ngx-cheatsheet/ngx-cheatsheet.component';
 import {NgxHotkeysService} from './services/ngx-hotkeys.service';
-import {HotkeyOptionsToken} from './token';
+import {HOTKEY_OPTIONS} from './token';
 import {HotkeyOptions} from './interfaces';
 
 @NgModule({
@@ -24,7 +24,7 @@ export class NgxHotkeysModule {
       providers: [
         NgxHotkeysService,
         {
-          provide: HotkeyOptionsToken,
+          provide: HOTKEY_OPTIONS,
           useValue: options
         }
       ]
