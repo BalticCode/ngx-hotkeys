@@ -18,7 +18,7 @@ import {HotkeyOptions} from './interfaces';
   ]
 })
 export class NgxHotkeysModule {
-  static forRoot(options?: HotkeyOptions): ModuleWithProviders {
+  static forRoot(options?: HotkeyOptions): ModuleWithProviders<NgxHotkeysModule> {
     return {
       ngModule: NgxHotkeysModule,
       providers: [
