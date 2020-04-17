@@ -13,6 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "aot": true,
             "outputPath": "dist/ngx-hotkeys-demo",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -144,7 +145,8 @@
           "configurations": {
             "production": {
               "project": "projects/ngx-hotkeys/ng-package.prod.json"
-            }
+            ,              "tsConfig": "projects/ngx-hotkeys/tsconfig.lib.prod.json"
+}
           }
         },
         "test": {
