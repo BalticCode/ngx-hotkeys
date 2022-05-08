@@ -3,7 +3,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 
 import { Hotkey, HotkeyOptions } from '../interfaces';
 import { HOTKEY_OPTIONS } from '../token';
-import { share } from 'rxjs/internal/operators';
+import { share } from 'rxjs/operators';
 import { EventManager } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
 
