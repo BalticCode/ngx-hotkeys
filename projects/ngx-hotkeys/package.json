@@ -1,6 +1,6 @@
 {
   "name": "@balticcode/ngx-hotkeys",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "An Angular module providing hotkey support.",
   "repository": {
     "type": "git",
@@ -19,12 +19,14 @@
     "url": "https://github.com/BalticCode/ngx-hotkeys/issues"
   },
   "homepage": "https://github.com/BalticCode/ngx-hotkeys#readme",
-  "schematics": "./schematics/collection.json",
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
   "peerDependencies": {
-    "@angular/common": ">=8.0.0",
-    "@angular/core": ">=8.0.0"
+    "@angular/common": ">=13.2.3",
+    "@angular/core": ">=13.2.3"
   }
 }

@@ -1,4 +1,4 @@
-[![npm version](https://img.shields.io/npm/v/@balticcode/ngx-hotkeys.svg)](https://www.npmjs.com/package/@balticcode/ngx-hotkeys) [![Join the chat at https://gitter.im/balticcode/ngx-hotkeys](https://badges.gitter.im/balticcode/ngx-hotkeys.svg)](https://gitter.im/balticcode/ngx-hotkeys?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![npm version](https://img.shields.io/npm/v/@balticcode/ngx-hotkeys.svg)](https://www.npmjs.com/package/@balticcode/ngx-hotkeys)
 # ngx-hotkeys
 
 An Angular module providing hotkey support.
@@ -18,16 +18,6 @@ Install via npm:
 ```
 npm install @balticcode/ngx-hotkeys --save
 ```
-
-Install using schematics:
-```
-ng add @balticcode/ngx-hotkeys
-```
-This command will:
-
-- Add `@balticcode/ngx-hotkeys` into `package.json`.
-- Run `npm install`.
-- Import `NgxHotkeysModule.forRoot()` into the root module of your default application (or defining a project by using the `--project <PROJECT_NAME>` and/or `--module <MODULE_PATH>` CLI parameters).
 
 ## Usage
 
