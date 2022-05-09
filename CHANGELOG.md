@@ -4,6 +4,7 @@
 ### BREAKING CHANGES
 
 * library requires `13.2.3` as the minimum version of `@angular/core` now due to changes made to `@angular/compiler` and `@angular/core` ([#44994](https://github.com/angular/angular/pull/44994))
+* removed schematic support
 
 <a name="3.0.2"></a>
 # [3.0.2](https://github.com/BalticCode/ngx-hotkeys/compare/3.0.1...3.0.2) (2020-02-29)
