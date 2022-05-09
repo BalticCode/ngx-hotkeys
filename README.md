@@ -1,4 +1,4 @@
-[![npm version](https://img.shields.io/npm/v/@balticcode/ngx-hotkeys.svg)](https://www.npmjs.com/package/@balticcode/ngx-hotkeys) [![Join the chat at https://gitter.im/balticcode/ngx-hotkeys](https://badges.gitter.im/balticcode/ngx-hotkeys.svg)](https://gitter.im/balticcode/ngx-hotkeys?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![npm version](https://img.shields.io/npm/v/@balticcode/ngx-hotkeys.svg)](https://www.npmjs.com/package/@balticcode/ngx-hotkeys)
 # ngx-hotkeys
 
 An Angular module providing hotkey support.
