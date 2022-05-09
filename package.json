@@ -1,6 +1,6 @@
 {
   "name": "@balticcode/ngx-hotkeys-demo",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "A demo application showing the usage of ngx-hotkeys.",
   "scripts": {
     "ng": "ng",
