@@ -54,6 +54,6 @@
     "ts-node": "~7.0.0",
     "tslint": "~6.1.0",
     "typescript": "~4.6.4",
-    "webpack": "^4.39.2"
+    "webpack": "^5.72.0"
   }
 }
