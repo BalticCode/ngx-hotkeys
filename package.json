@@ -9,7 +9,7 @@
     "build:prod": "ng build ngx-hotkeys && npm run copy && npm run build:docs",
     "copy": "npm run schematics:copy && copyfiles ./LICENSE ./README.md ./dist/libs/ngx-hotkeys",
     "schematics:copy": "copyfiles -u 2 ./schematics/src/**/*.js ./schematics/src/**/*.json ./dist/libs/ngx-hotkeys/schematics",
-    "build:docs": "ng build --prod --output-path docs --base-href ngx-hotkeys",
+    "build:docs": "ng build --configuration production --output-path docs --base-href ngx-hotkeys",
     "schematics:watch": "cd ./schematics/ && npm link && cd .. && npm link schematics && npm run build --prefix ./schematics -- --watch",
     "test": "ng test",
     "lint": "ng lint",
